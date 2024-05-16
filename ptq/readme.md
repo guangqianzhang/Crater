@@ -1,0 +1,2 @@
+文件来自lidar ai iot 中的bevfusion项目。根据项目算法进行修改，已经可以完成fcos3d算法的ptq量化。
+量化内容为backbone和neck，为对head作量化操作
