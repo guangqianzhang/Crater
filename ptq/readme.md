@@ -9,8 +9,8 @@
     此为来自BevFusion加速项目的量化工具包，经修改可以实现fcos3d算法部分结构的量化功能，推理加速约33倍，0.2s。
     主要修改内容为网络结构以及回调钩子函数中的网络推理部分。
 
-    + ptq: fcos3d网络量化脚本
-    + runptq_model: 网络推理脚本
++ ptq: fcos3d网络量化脚本
++ runptq_model: 网络推理脚本
     使用时需修改 mmdet3d/apis/inference 中部分代码
     ` 
     def inference_mono_3d_detector(model,cfg, image, ann_file):
@@ -27,4 +27,4 @@
     # cfg = model.cfg  # 修改
     device = next(model.parameters()).device  # model device
     `
-    + export_onnx: onnx导出脚本，存在“unkown lean”问题。
++ export_onnx: onnx导出脚本，存在“unkown lean”问题。
