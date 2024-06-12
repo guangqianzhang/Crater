@@ -588,6 +588,16 @@ def download(url, dir='.', unzip=True, delete=True, curl=False, threads=1, retry
 
 
 def make_divisible(x, divisor):
+    """
+    返回最接近x且可以被divisor整除的数。
+    
+    Args:
+        x (float): 需要调整大小的数值。
+        divisor (Union[int, torch.Tensor]): 除数，可以是整数或者torch.Tensor类型。
+    
+    Returns:
+        float: 最接近x且可以被divisor整除的数。
+    """
     # Returns nearest x divisible by divisor
     if isinstance(divisor, torch.Tensor):
         divisor = int(divisor.max())  # to int

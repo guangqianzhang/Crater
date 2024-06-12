@@ -1,3 +1,10 @@
+"""
+QuantConv1d、QuantConv2d、Quant
+Conv3d、QuantConvTranspose1d、quantConvTranspose 2d、QuantiConvTransbose
+3d、QuantiLinear、QuantAvgPool1d、QuantAvg Pool2d、Quant AvgPool
+3d、QuantMaxPool1d、QuantMax Pool2D、Quant MaxPool3d
+"""
+
 import torch
 from pytorch_quantization import tensor_quant
 #国定种子12345并生成随机输入X为:
@@ -13,7 +20,6 @@ print(f"fake_quant_x:{fake_quant_x}")
 # tensor([126.，113.， 127.，59., 11., 23., 47., 73.，43.,27.J)
 quant_x, scale = tensor_quant.tensor_quant(x, x.abs().max())
 print(f"quant_x:{quant_x},scale:{scale}")
-
 
 
 from torch import nn
@@ -42,9 +48,3 @@ quant_conv1 = quant_nn.Conv2d(
     quant_desc_input=tensor_quant.QUANT_DESC_8BIT_PER_TENSOR,
     quant_desc_weight=tensor_quant.QUANT_DESC_8BIT_CONV2D_WEIGHT_PER_CHANNEL
 )
-"""
-QuantConv1d、QuantConv2d、Quant
-Conv3d、QuantConvTranspose1d、quantConvTranspose 2d、QuantiConvTransbose
-3d、QuantiLinear、QuantAvgPool1d、QuantAvg Pool2d、Quant AvgPool
-3d、QuantMaxPool1d、QuantMax Pool2D、Quant MaxPool3d
-"""

@@ -217,30 +217,31 @@ def create_model(num_classes=10):
 
     # The number of channels in ResNet18 is divisible by 8.
     # This is required for fast GEMM integer matrix multiplication.
-    # model = torchvision.models.resnet18(pretrained=False)
-    model = resnet18(num_classes=num_classes, pretrained=False)
+    model = torchvision.models.resnet18(pretrained=False)
+    # model = resnet18(num_classes=num_classes, pretrained=False)
 
     # We would use the pretrained ResNet18 as a feature extractor.
-    # for param in model.parameters():
-    #     param.requires_grad = False
+    for param in model.parameters():
+        param.requires_grad = False
     
     # Modify the last FC layer
-    # num_features = model.fc.in_features
-    # model.fc = nn.Linear(num_features, 10)
+    num_features = model.fc.in_features
+    model.fc = nn.Linear(num_features, num_classes)
 
     return model
 
-class QuantizedResNet18(nn.Module):
+
+class QuantizedNet(nn.Module):
     def __init__(self, model_fp32):
-        super(QuantizedResNet18, self).__init__()
+        super(QuantizedNet, self).__init__()
         # QuantStub converts tensors from floating point to quantized.
         # This will only be used for inputs.
         self.quant = torch.quantization.QuantStub()
+        # FP32 model
+        self.model_fp32 = model_fp32
         # DeQuantStub converts tensors from quantized to floating point.
         # This will only be used for outputs.
         self.dequant = torch.quantization.DeQuantStub()
-        # FP32 model
-        self.model_fp32 = model_fp32
 
     def forward(self, x):
         # manually specify where tensors will be converted from floating
@@ -251,28 +252,6 @@ class QuantizedResNet18(nn.Module):
         # to floating point in the quantized model
         x = self.dequant(x)
         return x
-
-# class QuantizedNet(nn.Module):
-#     def __init__(self, model_fp32):
-#         super(QuantizedNet, self).__init__()
-#         # QuantStub converts tensors from floating point to quantized.
-#         # This will only be used for inputs.
-#         self.quant = torch.quantization.QuantStub()
-#         # FP32 model
-#         self.model_fp32 = model_fp32
-#         # DeQuantStub converts tensors from quantized to floating point.
-#         # This will only be used for outputs.
-#         self.dequant = torch.quantization.DeQuantStub()
-
-#     def forward(self, x):
-#         # manually specify where tensors will be converted from floating
-#         # point to quantized in the quantized model
-#         x = self.quant(x)
-#         x = self.model_fp32(x)
-#         # manually specify where tensors will be converted from quantized
-#         # to floating point in the quantized model
-#         x = self.dequant(x)
-#         return x
 
 def model_equivalence(model_1, model_2, device, rtol=1e-05, atol=1e-08, num_tests=100, input_size=(1,3,32,32)):
 
@@ -319,15 +298,7 @@ def main():
     # Save model.
     save_model(model=model, model_dir=model_dir, model_filename=model_filename)
 
-
-
-
-
-
     # 여기서부터 quantization 관련
-
-
-
 
     
     # Load a pretrained model.
@@ -364,7 +335,7 @@ def main():
 
     # Prepare the model for quantization aware training. This inserts observers in
     # the model that will observe activation tensors during calibration.
-    quantized_model = QuantizedResNet18(model_fp32=fused_model)
+    quantized_model = QuantizedNet(model_fp32=fused_model)
     # Using un-fused model will fail.
     # Because there is no quantized layer implementation for a single batch normalization layer.
     # quantized_model = QuantizedResNet18(model_fp32=model)
@@ -373,7 +344,8 @@ def main():
     quantization_config = torch.quantization.get_default_qat_qconfig("fbgemm")
     # Custom quantization configurations
     # quantization_config = torch.quantization.default_qconfig
-    # quantization_config = torch.quantization.QConfig(activation=torch.quantization.MinMaxObserver.with_args(dtype=torch.quint8), weight=torch.quantization.MinMaxObserver.with_args(dtype=torch.qint8, qscheme=torch.per_tensor_symmetric))
+    # quantization_config = torch.quantization.QConfig(activation=torch.quantization.MinMaxObserver.with_args(dtype=torch.quint8), 
+    #                                                   weight=torch.quantization.MinMaxObserver.with_args(dtype=torch.qint8, qscheme=torch.per_tensor_symmetric))
 
     quantized_model.qconfig = quantization_config
     
