@@ -24,7 +24,7 @@
     Returns:
         tuple: Predicted results and data from pipeline.
     """
-    # cfg = model.cfg  # 修改
+    ‘# cfg = model.cfg  # 修改
     device = next(model.parameters()).device  # model device
     `
 + export_onnx: onnx导出脚本，存在“unkown lean”问题。
