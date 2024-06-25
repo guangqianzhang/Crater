@@ -34,9 +34,10 @@ class Model(torch.nn.Module):
         x = self.conv1(x)
         x = self.bn1(x)
         x = self.act1(x)
-        x = self.avgpool2d(x)
+        # x = self.avgpool2d(x)
         print(x.shape)
-        x = self.head(x.reshape(-1,self.linear_inchannels))
+        # x = self.head(x.reshape(-1,self.linear_inchannels))
+        x= self.head(torch.flatten(x,start_dim=2,end_dim=3))
         return x
     
 
@@ -72,9 +73,10 @@ def export_onnx(model,input_data):
         "../models/convexample.onnx", 
         check_n=3
     )
+    assert check, "assert check failed"
     # 下面我们使用onnx自带的shape推理，来修改导出的onnx模型
-    onnx_model = onnx.load("../models/convexample.onnx")
-    onnx.save(onnx.shape_inference.infer_shapes(onnx_model), "../models/convexample-inferred.onnx")
+    # onnx_model = onnx.load("../models/convexample.onnx")
+    onnx.save(onnx.shape_inference.infer_shapes(model_onnx), "../models/convexample-inferred.onnx")
 
     
 
